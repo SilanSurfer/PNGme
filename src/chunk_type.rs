@@ -2,33 +2,33 @@ use std::convert::TryFrom;
 
 #[derive(Debug, PartialEq)]
 struct ChunkType {
-    data: Vec<u8>,
+    data_type: Vec<u8>,
 }
 
 impl ChunkType {
     fn bytes(&self) -> &[u8] {
-        &self.data
+        &self.data_type
     }
 
     fn is_critical(&self) -> bool {
-        (self.data[0] as char).is_uppercase()
+        (self.data_type[0] as char).is_uppercase()
     }
 
     fn is_public(&self) -> bool {
-        (self.data[1] as char).is_uppercase()
+        (self.data_type[1] as char).is_uppercase()
     }
 
     fn is_reserved_bit_valid(&self) -> bool {
-        (self.data[2] as char).is_uppercase()
+        (self.data_type[2] as char).is_uppercase()
     }
 
     fn is_safe_to_copy(&self) -> bool {
-        (self.data[3] as char).is_lowercase()
+        (self.data_type[3] as char).is_lowercase()
     }
 
     fn is_valid(&self) -> bool {
         //change it to all
-        self.data
+        self.data_type
             .iter()
             .map(|elem| (*elem as char).is_ascii_alphabetic())
             .filter(|elem| *elem)
@@ -43,7 +43,7 @@ impl std::convert::TryFrom<[u8; 4]> for ChunkType {
 
     fn try_from(value: [u8; 4]) -> Result<Self, Self::Error> {
         Ok(ChunkType {
-            data: value.to_vec(),
+            data_type: value.to_vec(),
         })
     }
 }
@@ -58,18 +58,18 @@ impl std::str::FromStr for ChunkType {
             == s.len()
         {
             Ok(ChunkType {
-                data: s.as_bytes().to_vec(),
+                data_type: s.as_bytes().to_vec(),
             })
         } else {
-            Err("Data should be in range A-Z or a-z!")
+            Err("Data_type should be in range A-Z or a-z!")
         }
     }
 }
 
 impl std::fmt::Display for ChunkType {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match std::str::from_utf8(&self.data) {
-            Ok(data) => write!(f, "{}", data),
+        match std::str::from_utf8(&self.data_type) {
+            Ok(data_type) => write!(f, "{}", data_type),
             Err(_) => Err(std::fmt::Error),
         }
     }
