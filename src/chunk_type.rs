@@ -1,32 +1,30 @@
 use std::convert::TryFrom;
+use std::fmt::Display;
+use std::str::FromStr;
 
 #[derive(Debug, PartialEq)]
-struct ChunkType {
+pub struct ChunkType {
     data_type: Vec<u8>,
 }
 
 impl ChunkType {
-    fn bytes(&self) -> &[u8] {
+    pub fn bytes(&self) -> &[u8] {
         &self.data_type
     }
 
-    fn is_critical(&self) -> bool {
+    pub fn is_critical(&self) -> bool {
         (self.data_type[0] as char).is_uppercase()
     }
 
-    fn is_public(&self) -> bool {
+    pub fn is_public(&self) -> bool {
         (self.data_type[1] as char).is_uppercase()
     }
 
-    fn is_reserved_bit_valid(&self) -> bool {
-        (self.data_type[2] as char).is_uppercase()
-    }
-
-    fn is_safe_to_copy(&self) -> bool {
+    pub fn is_safe_to_copy(&self) -> bool {
         (self.data_type[3] as char).is_lowercase()
     }
 
-    fn is_valid(&self) -> bool {
+    pub fn is_valid(&self) -> bool {
         //change it to all
         self.data_type
             .iter()
@@ -36,9 +34,13 @@ impl ChunkType {
             == 4
             && self.is_reserved_bit_valid()
     }
+
+    fn is_reserved_bit_valid(&self) -> bool {
+        (self.data_type[2] as char).is_uppercase()
+    }
 }
 
-impl std::convert::TryFrom<[u8; 4]> for ChunkType {
+impl TryFrom<[u8; 4]> for ChunkType {
     type Error = &'static str;
 
     fn try_from(value: [u8; 4]) -> Result<Self, Self::Error> {
@@ -48,7 +50,7 @@ impl std::convert::TryFrom<[u8; 4]> for ChunkType {
     }
 }
 
-impl std::str::FromStr for ChunkType {
+impl FromStr for ChunkType {
     type Err = &'static str;
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         if s.chars()
@@ -66,7 +68,7 @@ impl std::str::FromStr for ChunkType {
     }
 }
 
-impl std::fmt::Display for ChunkType {
+impl Display for ChunkType {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match std::str::from_utf8(&self.data_type) {
             Ok(data_type) => write!(f, "{}", data_type),
