@@ -54,9 +54,7 @@ impl FromStr for ChunkType {
         if s.len() != 4 {
             return Err(PngMeError::InvalidNumberOfBytes);
         }
-        if s.chars()
-            .all(|elem| elem.is_ascii_alphabetic())
-        {
+        if s.chars().all(|elem| elem.is_ascii_alphabetic()) {
             Ok(ChunkType {
                 data_type: s.as_bytes().to_vec(),
             })
