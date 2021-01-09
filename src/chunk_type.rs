@@ -28,10 +28,7 @@ impl ChunkType {
         //change it to all
         self.data_type
             .iter()
-            .map(|elem| (*elem as char).is_ascii_alphabetic())
-            .filter(|elem| *elem)
-            .count()
-            == 4
+            .all(|elem| (*elem as char).is_ascii_alphabetic())
             && self.is_reserved_bit_valid()
     }
 
