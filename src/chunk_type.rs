@@ -6,7 +6,7 @@ use crate::error::PngMeError;
 
 #[derive(Debug, PartialEq)]
 pub struct ChunkType {
-    data_type: Vec<u8>,
+    data_type: [u8;4],
 }
 
 impl ChunkType {
@@ -39,12 +39,16 @@ impl ChunkType {
 }
 
 impl TryFrom<[u8; 4]> for ChunkType {
-    type Error = &'static str;
+    type Error = PngMeError;
 
     fn try_from(value: [u8; 4]) -> Result<Self, Self::Error> {
-        Ok(ChunkType {
-            data_type: value.to_vec(),
-        })
+        if value.iter().all(|elem| (*elem as char).is_ascii_alphabetic()) {
+            Ok(ChunkType {
+                data_type: [value[0], value[1], value[2], value[3]]
+            })
+        } else {
+            Err(PngMeError::NotAsciiAlphabetic)
+        }
     }
 }
 
@@ -55,8 +59,9 @@ impl FromStr for ChunkType {
             return Err(PngMeError::InvalidNumberOfBytes);
         }
         if s.chars().all(|elem| elem.is_ascii_alphabetic()) {
+            let data = s.as_bytes();
             Ok(ChunkType {
-                data_type: s.as_bytes().to_vec(),
+                data_type: [data[0], data[1], data[2], data[3]]
             })
         } else {
             Err(PngMeError::NotAsciiAlphabetic)
