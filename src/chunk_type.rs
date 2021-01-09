@@ -2,6 +2,8 @@ use std::convert::TryFrom;
 use std::fmt::Display;
 use std::str::FromStr;
 
+use crate::error::PngMeError;
+
 #[derive(Debug, PartialEq)]
 pub struct ChunkType {
     data_type: Vec<u8>,
@@ -25,7 +27,6 @@ impl ChunkType {
     }
 
     pub fn is_valid(&self) -> bool {
-        //change it to all
         self.data_type
             .iter()
             .all(|elem| (*elem as char).is_ascii_alphabetic())
@@ -48,19 +49,19 @@ impl TryFrom<[u8; 4]> for ChunkType {
 }
 
 impl FromStr for ChunkType {
-    type Err = &'static str;
+    type Err = PngMeError;
     fn from_str(s: &str) -> Result<Self, Self::Err> {
+        if s.len() != 4 {
+            return Err(PngMeError::InvalidNumberOfBytes);
+        }
         if s.chars()
-            .map(|elem| elem.is_ascii_alphabetic())
-            .filter(|elem| *elem)
-            .count()
-            == s.len()
+            .all(|elem| elem.is_ascii_alphabetic())
         {
             Ok(ChunkType {
                 data_type: s.as_bytes().to_vec(),
             })
         } else {
-            Err("Data_type should be in range A-Z or a-z!")
+            Err(PngMeError::NotAsciiAlphabetic)
         }
     }
 }
