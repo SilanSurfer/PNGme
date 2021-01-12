@@ -6,6 +6,8 @@ pub enum PngMeError {
     ReservedBitInvalid,
     InvalidNumberOfBytes,
     Utf8ConversionError,
+    U8SliceConversionError,
+    NotEnoughBytesToCreateChunk,
 }
 
 impl Display for PngMeError {
@@ -17,6 +19,11 @@ impl Display for PngMeError {
             PngMeError::ReservedBitInvalid => write!(f, "Reserved bit in ChunkType must be 0"),
             PngMeError::InvalidNumberOfBytes => write!(f, "ChunkType must have 4 bytes"),
             PngMeError::Utf8ConversionError => write!(f, "Couldn't convert bytes to UTF8"),
+            PngMeError::U8SliceConversionError => write!(f, "Couldn't convert &[u8] to [u8]"),
+            PngMeError::NotEnoughBytesToCreateChunk => write!(
+                f,
+                "Not enough bytes to create Chunk. Data should have at least 12 bytes."
+            ),
         }
     }
 }

@@ -1,6 +1,7 @@
 use std::convert::{TryFrom, TryInto};
 
 use crate::chunk_type::ChunkType;
+use crate::error::PngMeError;
 
 #[derive(Debug)]
 struct Chunk {
@@ -25,21 +26,36 @@ impl Chunk {
 }
 
 impl TryFrom<&[u8]> for Chunk {
-    type Error = &'static str;
+    type Error = PngMeError;
 
     fn try_from(value: &[u8]) -> Result<Self, Self::Error> {
         let data_len = value.len();
-        let length: u32 = u32::from_be_bytes(value[0..4].try_into().unwrap());
-        let chunk_type: ChunkType = ChunkType::try_from(value[4..8].try_into().unwrap()).unwrap();
-        let crc = u32::from_be_bytes(value[data_len - 4..].try_into().unwrap());
-        let data = value[8..data_len - 4].to_vec();
+        if data_len >= 12 {
+            let length: u32 = u32::from_be_bytes(
+                value[0..4]
+                    .try_into()
+                    .map_err(|_| PngMeError::U8SliceConversionError)?,
+            );
+            let slice: [u8; 4] = value[4..8]
+                .try_into()
+                .map_err(|_| PngMeError::U8SliceConversionError)?;
+            let chunk_type: ChunkType = ChunkType::try_from(slice)?;
+            let crc = u32::from_be_bytes(
+                value[data_len - 4..]
+                    .try_into()
+                    .map_err(|_| PngMeError::U8SliceConversionError)?,
+            );
+            let data = value[8..data_len - 4].to_vec();
 
-        Ok(Chunk {
-            length,
-            chunk_type,
-            data,
-            crc,
-        })
+            Ok(Chunk {
+                length,
+                chunk_type,
+                data,
+                crc,
+            })
+        } else {
+            Err(PngMeError::NotEnoughBytesToCreateChunk)
+        }
     }
 }
 
