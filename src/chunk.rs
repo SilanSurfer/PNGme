@@ -24,6 +24,10 @@ impl Chunk {
     pub fn crc(&self) -> u32 {
         self.crc
     }
+
+    pub fn data_as_string(&self) -> Result<String, std::string::FromUtf8Error> {
+        String::from_utf8(self.data.clone())
+    }
 }
 
 impl TryFrom<&[u8]> for Chunk {
