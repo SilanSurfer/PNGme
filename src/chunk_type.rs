@@ -6,7 +6,7 @@ use crate::error::PngMeError;
 
 #[derive(Debug, PartialEq)]
 pub struct ChunkType {
-    data_type: [u8;4],
+    data_type: [u8; 4],
 }
 
 impl ChunkType {
@@ -42,9 +42,12 @@ impl TryFrom<[u8; 4]> for ChunkType {
     type Error = PngMeError;
 
     fn try_from(value: [u8; 4]) -> Result<Self, Self::Error> {
-        if value.iter().all(|elem| (*elem as char).is_ascii_alphabetic()) {
+        if value
+            .iter()
+            .all(|elem| (*elem as char).is_ascii_alphabetic())
+        {
             Ok(ChunkType {
-                data_type: [value[0], value[1], value[2], value[3]]
+                data_type: [value[0], value[1], value[2], value[3]],
             })
         } else {
             Err(PngMeError::NotAsciiAlphabetic)
@@ -61,7 +64,7 @@ impl FromStr for ChunkType {
         if s.chars().all(|elem| elem.is_ascii_alphabetic()) {
             let data = s.as_bytes();
             Ok(ChunkType {
-                data_type: [data[0], data[1], data[2], data[3]]
+                data_type: [data[0], data[1], data[2], data[3]],
             })
         } else {
             Err(PngMeError::NotAsciiAlphabetic)
