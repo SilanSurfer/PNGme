@@ -1,4 +1,5 @@
 use std::convert::{TryFrom, TryInto};
+use std::fmt::Display;
 
 use crate::chunk_type::ChunkType;
 use crate::error::PngMeError;
@@ -56,6 +57,16 @@ impl TryFrom<&[u8]> for Chunk {
         } else {
             Err(PngMeError::NotEnoughBytesToCreateChunk)
         }
+    }
+}
+
+impl Display for Chunk {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "Chunk:\n{{\n length: {},\n type: {},\n data: {:?},\n crc: {}\n}}",
+            self.length, self.chunk_type, self.data, self.crc
+        )
     }
 }
 
