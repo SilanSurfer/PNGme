@@ -45,19 +45,26 @@ impl TryFrom<&[u8]> for Chunk {
                 .try_into()
                 .map_err(|_| PngMeError::U8SliceConversionError)?;
             let chunk_type: ChunkType = ChunkType::try_from(slice)?;
-            let crc = u32::from_be_bytes(
+            let data = value[8..data_len - 4].to_vec();
+
+            let expected_crc = u32::from_be_bytes(
                 value[data_len - 4..]
                     .try_into()
                     .map_err(|_| PngMeError::U8SliceConversionError)?,
             );
-            let data = value[8..data_len - 4].to_vec();
 
-            Ok(Chunk {
-                length,
-                chunk_type,
-                data,
-                crc,
-            })
+            let calculated_crc = crc::crc32::checksum_ieee(&value[4..data_len - 4]);
+
+            if calculated_crc == expected_crc {
+                Ok(Chunk {
+                    length,
+                    chunk_type,
+                    data,
+                    crc: calculated_crc,
+                })
+            } else {
+                Err(PngMeError::CrcError)
+            }
         } else {
             Err(PngMeError::NotEnoughBytesToCreateChunk)
         }
