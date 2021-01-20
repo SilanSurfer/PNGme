@@ -5,7 +5,7 @@ use crate::chunk_type::ChunkType;
 use crate::error::PngMeError;
 
 #[derive(Debug)]
-struct Chunk {
+pub struct Chunk {
     length: u32,
     chunk_type: ChunkType,
     data: Vec<u8>,
