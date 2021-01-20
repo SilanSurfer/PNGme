@@ -1,6 +1,39 @@
+use crate::chunk::Chunk;
+use crate::chunk_type::ChunkType;
+use crate::error::PngMeError;
+
+use std::str::FromStr;
 
 pub struct Png {
+    chunks: Vec<Chunk>,
+}
+
+impl Png {
+    pub const STANDARD_HEADER: [u8; 8] = [137, 80, 78, 71, 13, 10, 26, 10];
+
+
+    pub fn from_chunks(chunks: Vec<Chunk>) -> Png {
+        Png {chunks}
+    }
     
+    pub fn append_chunk(&mut self, chunk: Chunk) {
+        self.chunks.push(chunk);
+    }
+
+    pub fn remove_chunk(&mut self, chunk_type: &str) -> Result<Chunk, PngMeError> {
+        let chunk_type  = ChunkType::from_str(chunk_type)?;
+        let pos = self.chunks.iter().position(|elem| elem.chunk_type() == &chunk_type);
+        if let Some(idx) = pos {
+            Ok(self.chunks.remove(idx))
+        } else {
+            Err(PngMeError::ChunkTypeNotFound)
+        }
+    }
+
+    pub fn header(&self) -> &[u8; 8] {
+        &Png::STANDARD_HEADER
+    }
+
 }
 
 #[cfg(test)]
