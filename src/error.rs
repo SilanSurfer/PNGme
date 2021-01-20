@@ -9,6 +9,7 @@ pub enum PngMeError {
     U8SliceConversionError,
     NotEnoughBytesToCreateChunk,
     CrcError,
+    ChunkTypeNotFound,
 }
 
 impl Display for PngMeError {
@@ -26,6 +27,7 @@ impl Display for PngMeError {
                 "Not enough bytes to create Chunk. Data should have at least 12 bytes."
             ),
             PngMeError::CrcError => write!(f, "Calculated CRC is different than expected!"),
+            PngMeError::ChunkTypeNotFound => write!(f, "Chunk with that type not found!"),
         }
     }
 }
