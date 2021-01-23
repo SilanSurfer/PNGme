@@ -28,6 +28,17 @@ impl Chunk {
     pub fn data_as_string(&self) -> Result<String, std::string::FromUtf8Error> {
         String::from_utf8(self.data.clone())
     }
+
+    pub fn as_bytes(&self) -> Vec<u8> {
+        self.length
+            .to_be_bytes()
+            .iter()
+            .chain(self.chunk_type.bytes().iter())
+            .chain(self.data.iter())
+            .chain(self.crc.to_be_bytes().iter())
+            .copied()
+            .collect()
+    }
 }
 
 impl TryFrom<&[u8]> for Chunk {
