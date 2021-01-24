@@ -13,6 +13,21 @@ pub struct Chunk {
 }
 
 impl Chunk {
+    pub fn new(chunk_type: ChunkType, data: Vec<u8>) -> Self {
+        let crc_input: Vec<u8> = chunk_type
+            .bytes()
+            .iter()
+            .chain(data.iter())
+            .copied()
+            .collect();
+        let crc = crc::crc32::checksum_ieee(&crc_input);
+        Chunk {
+            length: data.len() as u32,
+            chunk_type: chunk_type,
+            data: data,
+            crc: crc,
+        }
+    }
     pub fn length(&self) -> u32 {
         self.length
     }
