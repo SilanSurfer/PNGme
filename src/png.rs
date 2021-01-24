@@ -2,6 +2,7 @@ use crate::chunk::Chunk;
 use crate::chunk_type::ChunkType;
 use crate::error::PngMeError;
 
+use std::convert::{TryFrom, TryInto};
 use std::str::FromStr;
 
 pub struct Png {
@@ -11,18 +12,20 @@ pub struct Png {
 impl Png {
     pub const STANDARD_HEADER: [u8; 8] = [137, 80, 78, 71, 13, 10, 26, 10];
 
-
     pub fn from_chunks(chunks: Vec<Chunk>) -> Png {
-        Png {chunks}
+        Png { chunks }
     }
-    
+
     pub fn append_chunk(&mut self, chunk: Chunk) {
         self.chunks.push(chunk);
     }
 
     pub fn remove_chunk(&mut self, chunk_type: &str) -> Result<Chunk, PngMeError> {
-        let chunk_type  = ChunkType::from_str(chunk_type)?;
-        let pos = self.chunks.iter().position(|elem| elem.chunk_type() == &chunk_type);
+        let chunk_type = ChunkType::from_str(chunk_type)?;
+        let pos = self
+            .chunks
+            .iter()
+            .position(|elem| elem.chunk_type() == &chunk_type);
         if let Some(idx) = pos {
             Ok(self.chunks.remove(idx))
         } else {
@@ -33,16 +36,43 @@ impl Png {
     pub fn header(&self) -> &[u8; 8] {
         &Png::STANDARD_HEADER
     }
+}
 
+impl TryFrom<&[u8]> for Png {
+    type Error = PngMeError;
+
+    fn try_from(bytes: &[u8]) -> Result<Self, Self::Error> {
+        let header = &bytes[0..8];
+        if header != &Png::STANDARD_HEADER {
+            Err(Self::Error::InvalidHeader)
+        } else {
+            let mut idx: usize = 8;
+            let mut chunks = Vec::new();
+            loop {
+                // lenght (4 bytes) + chunk type (4 bytes) + data(defined in length) + crc (4 bytes)
+                let len: usize = usize::from_be_bytes(
+                    bytes[idx..idx + 4]
+                        .try_into()
+                        .map_err(|_| Self::Error::U8SliceConversionError)?,
+                ) + 12;
+                chunks.push(Chunk::try_from(&bytes[idx..idx + len])?);
+                idx += len;
+                if idx > bytes.len() {
+                    break;
+                }
+            }
+            Ok(Png { chunks })
+        }
+    }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::chunk_type::ChunkType;
     use crate::chunk::Chunk;
-    use std::str::FromStr;
+    use crate::chunk_type::ChunkType;
     use std::convert::TryFrom;
+    use std::str::FromStr;
 
     fn testing_chunks() -> Vec<Chunk> {
         let mut chunks = Vec::new();
@@ -59,7 +89,7 @@ mod tests {
         Png::from_chunks(chunks)
     }
 
-    fn chunk_from_strings(chunk_type: &str, data: &str) -> Result<Chunk> {
+    fn chunk_from_strings(chunk_type: &str, data: &str) -> Result<Chunk, PngMeError> {
         use std::str::FromStr;
 
         let chunk_type = ChunkType::from_str(chunk_type)?;
@@ -134,7 +164,6 @@ mod tests {
         assert!(png.is_err());
     }
 
-
     #[test]
     fn test_list_chunks() {
         let png = testing_png();
@@ -148,7 +177,6 @@ mod tests {
         let chunk = png.chunk_by_type("FrSt").unwrap();
         assert_eq!(&chunk.chunk_type().to_string(), "FrSt");
         assert_eq!(&chunk.data_as_string().unwrap(), "I am the first chunk");
-
     }
 
     #[test]
