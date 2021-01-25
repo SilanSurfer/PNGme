@@ -37,6 +37,27 @@ impl Png {
     pub fn header(&self) -> &[u8; 8] {
         &Png::STANDARD_HEADER
     }
+
+    pub fn chunks(&self) -> &[Chunk] {
+        &self.chunks
+    }
+
+    pub fn chunk_by_type(&self, chunk_type: &str) -> Option<&Chunk> {
+        if let Ok(chunk_type) = ChunkType::from_str(chunk_type) {
+            self.chunks.iter().find(|elem| elem.chunk_type() == &chunk_type)
+        } else {
+            None
+        }
+
+    }
+    pub fn as_bytes(&self) -> Vec<u8> {
+        let mut output = Vec::new();
+        output.extend_from_slice(&Self::STANDARD_HEADER);
+        for elem in &self.chunks {
+            output.append(&mut elem.as_bytes().clone());
+        }
+        output
+    }
 }
 
 impl TryFrom<&[u8]> for Png {
