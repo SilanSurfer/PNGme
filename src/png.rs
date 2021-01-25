@@ -3,6 +3,7 @@ use crate::chunk_type::ChunkType;
 use crate::error::PngMeError;
 
 use std::convert::{TryFrom, TryInto};
+use std::fmt::Display;
 use std::str::FromStr;
 
 pub struct Png {
@@ -63,6 +64,21 @@ impl TryFrom<&[u8]> for Png {
             }
             Ok(Png { chunks })
         }
+    }
+}
+
+impl Display for Png {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let mut output = String::from("Png:\n");
+        output.push_str(
+            &self
+                .chunks
+                .iter()
+                .map(|elem| elem.to_string())
+                .collect::<Vec<String>>()
+                .join("\n"),
+        );
+        write!(f, "{}", output)
     }
 }
 
