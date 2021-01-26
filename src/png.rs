@@ -44,11 +44,12 @@ impl Png {
 
     pub fn chunk_by_type(&self, chunk_type: &str) -> Option<&Chunk> {
         if let Ok(chunk_type) = ChunkType::from_str(chunk_type) {
-            self.chunks.iter().find(|elem| elem.chunk_type() == &chunk_type)
+            self.chunks
+                .iter()
+                .find(|elem| elem.chunk_type() == &chunk_type)
         } else {
             None
         }
-
     }
     pub fn as_bytes(&self) -> Vec<u8> {
         let mut output = Vec::new();
@@ -72,14 +73,15 @@ impl TryFrom<&[u8]> for Png {
             let mut chunks = Vec::new();
             loop {
                 // lenght (4 bytes) + chunk type (4 bytes) + data(defined in length) + crc (4 bytes)
-                let len: usize = usize::from_be_bytes(
+                let len: usize = u32::from_be_bytes(
                     bytes[idx..idx + 4]
                         .try_into()
                         .map_err(|_| Self::Error::U8SliceConversionError)?,
-                ) + 12;
+                ) as usize
+                    + 12usize;
                 chunks.push(Chunk::try_from(&bytes[idx..idx + len])?);
                 idx += len;
-                if idx > bytes.len() {
+                if idx >= bytes.len() {
                     break;
                 }
             }
