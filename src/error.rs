@@ -11,6 +11,7 @@ pub enum PngMeError {
     CrcError,
     ChunkTypeNotFound,
     InvalidHeader,
+    InvalidCliArguments,
 }
 
 impl Display for PngMeError {
@@ -30,6 +31,7 @@ impl Display for PngMeError {
             PngMeError::CrcError => write!(f, "Calculated CRC is different than expected!"),
             PngMeError::ChunkTypeNotFound => write!(f, "Chunk with that type not found!"),
             PngMeError::InvalidHeader => write!(f, "Header of PNG file is invalid!"),
+            PngMeError::InvalidCliArguments => write!(f, "Invalid CLI arguments provided!"),
         }
     }
 }
