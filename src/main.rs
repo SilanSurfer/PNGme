@@ -9,20 +9,26 @@ use crate::arg::{get_cli_args, PngMeCliArgs, EncodeArgs, DecodeArgs, PrintArgs, 
 fn main() -> Result<(), error::PngMeError> {
     let matches = get_cli_args();
 
-    if let Some(ref matches) = matches.subcommand_matches("decode") {
-        let filename = matches.value_of("filename").unwrap();
-        let chunk_type = matches.value_of("type").unwrap();
-        println!("Decode operation was executed with params: [{}] {}", filename, chunk_type);
-    }
+    let args = match matches.subcommand() {
+        ("encode", Some(encode_args)) => Ok(PngMeCliArgs::Encode(EncodeArgs{
+            filename: encode_args.value_of("filename").unwrap().to_string(),
+            chunk_type: encode_args.value_of("type").unwrap().to_string(),
+            msg: encode_args.value_of("message").unwrap().to_string(),
+            output_file: None,
+        })),
+        ("decode", Some(decode_args)) => Ok(PngMeCliArgs::Decode(DecodeArgs{
+            filename: decode_args.value_of("filename").unwrap().to_string(),
+            chunk_type: decode_args.value_of("type").unwrap().to_string(),
+        })),
+        ("remove", Some(remove_args)) => Ok(PngMeCliArgs::Remove(RemoveArgs{
+            filename: remove_args.value_of("filename").unwrap().to_string(),
+            chunk_type: remove_args.value_of("type").unwrap().to_string(),
+        })),
+        ("print", Some(print_args)) => Ok(PngMeCliArgs::Print(PrintArgs{
+            filename: print_args.value_of("filename").unwrap().to_string(),
+        })),
+        (_, _) => Err(error::PngMeError::InvalidCliArguments),
+    }?;
 
-    if let Some(ref matches) = matches.subcommand_matches("remove") {
-        let filename = matches.value_of("filename").unwrap();
-        let chunk_type = matches.value_of("type").unwrap();
-        println!("Remove operation was executed with params: [{}] {}", filename, chunk_type);
-    }
-
-    if let Some(ref matches) = matches.subcommand_matches("print") {
-        let filename = matches.value_of("filename").unwrap();
-        println!("Print operation was executed with params: [{}]", filename);
-    }
+    Ok(())
 }
