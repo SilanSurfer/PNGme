@@ -1,5 +1,6 @@
 extern crate clap;
 use clap::{App, Arg, ArgMatches, SubCommand};
+use crate::error::PngMeError;
 
 pub enum PngMeCliArgs {
     Encode(EncodeArgs),
@@ -27,6 +28,32 @@ pub struct RemoveArgs {
 
 pub struct PrintArgs {
     pub filename: String,
+}
+
+
+impl PngMeCliArgs {
+    pub fn new(matches: ArgMatches) -> Result<PngMeCliArgs, PngMeError> {
+        match matches.subcommand() {
+            ("encode", Some(encode_args)) => Ok(PngMeCliArgs::Encode(EncodeArgs {
+                filename: encode_args.value_of("filename").unwrap().to_string(),
+                chunk_type: encode_args.value_of("type").unwrap().to_string(),
+                msg: encode_args.value_of("message").unwrap().to_string(),
+                output_file: None,
+            })),
+            ("decode", Some(decode_args)) => Ok(PngMeCliArgs::Decode(DecodeArgs {
+                filename: decode_args.value_of("filename").unwrap().to_string(),
+                chunk_type: decode_args.value_of("type").unwrap().to_string(),
+            })),
+            ("remove", Some(remove_args)) => Ok(PngMeCliArgs::Remove(RemoveArgs {
+                filename: remove_args.value_of("filename").unwrap().to_string(),
+                chunk_type: remove_args.value_of("type").unwrap().to_string(),
+            })),
+            ("print", Some(print_args)) => Ok(PngMeCliArgs::Print(PrintArgs {
+                filename: print_args.value_of("filename").unwrap().to_string(),
+            })),
+            (_, _) => Err(PngMeError::InvalidCliArguments),
+        }
+    }
 }
 
 pub fn get_cli_args<'a>() -> ArgMatches<'a> {
