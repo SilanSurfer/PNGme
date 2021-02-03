@@ -2,11 +2,11 @@ mod arg;
 mod chunk;
 mod chunk_type;
 mod error;
-mod png;
 mod operation;
+mod png;
 
-use crate::operation::execute;
 use crate::arg::{get_cli_args, PngMeCliArgs};
+use crate::operation::execute;
 
 fn main() -> Result<(), error::PngMeError> {
     let matches = get_cli_args();

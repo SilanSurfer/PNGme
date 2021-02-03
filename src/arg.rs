@@ -1,6 +1,6 @@
 extern crate clap;
-use clap::{App, Arg, ArgMatches, SubCommand};
 use crate::error::PngMeError;
+use clap::{App, Arg, ArgMatches, SubCommand};
 
 pub enum PngMeCliArgs {
     Encode(EncodeArgs),
@@ -29,7 +29,6 @@ pub struct RemoveArgs {
 pub struct PrintArgs {
     pub filename: String,
 }
-
 
 impl PngMeCliArgs {
     pub fn new(matches: ArgMatches) -> Result<PngMeCliArgs, PngMeError> {
