@@ -1,6 +1,12 @@
 extern crate clap;
 use clap::{App, Arg, ArgMatches, SubCommand};
 use crate::error::PngMeError;
+use crate::png;
+use crate::chunk;
+use crate::chunk_type;
+use std::fs;
+use std::convert::TryFrom;
+use std::str::FromStr;
 
 pub enum PngMeCliArgs {
     Encode(EncodeArgs),
@@ -53,6 +59,17 @@ impl PngMeCliArgs {
             })),
             (_, _) => Err(PngMeError::InvalidCliArguments),
         }
+    }
+
+    pub fn encode(args: EncodeArgs) -> Result<(), PngMeError> {
+        let file_contents = fs::read(args.filename).map_err(|e| PngMeError::IoError(e))?;
+        let mut png_data = png::Png::try_from(file_contents.as_slice())?;
+        let msg_data = args.msg.as_bytes().to_vec();
+        png_data.append_chunk(chunk::Chunk::new(chunk_type::ChunkType::from_str(&args.chunk_type)?, msg_data));
+        if let Some(output_filename) = args.output_file {
+            fs::write(output_filename, png_data.as_bytes()).map_err(|e| PngMeError::IoError(e))?;
+        }
+        Ok(())
     }
 }
 
