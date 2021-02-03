@@ -12,7 +12,7 @@ pub enum PngMeError {
     ChunkTypeNotFound,
     InvalidHeader,
     InvalidCliArguments,
-    CouldnReadFile(std::io::Error),
+    IoError(std::io::Error),
 }
 
 impl Display for PngMeError {
@@ -33,7 +33,7 @@ impl Display for PngMeError {
             PngMeError::ChunkTypeNotFound => write!(f, "Chunk with that type not found!"),
             PngMeError::InvalidHeader => write!(f, "Header of PNG file is invalid!"),
             PngMeError::InvalidCliArguments => write!(f, "Invalid CLI arguments provided!"),
-            PngMeError::CouldnReadFile(e) => write!(f, "Couldn't read file due to {}", e),
+            PngMeError::IoError(e) => write!(f, "IO error caused by: {}", e),
         }
     }
 }
