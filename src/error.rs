@@ -13,6 +13,7 @@ pub enum PngMeError {
     InvalidHeader,
     InvalidCliArguments,
     IoError(std::io::Error),
+    FromUtf8ConversionError(std::string::FromUtf8Error),
 }
 
 impl Display for PngMeError {
@@ -34,6 +35,9 @@ impl Display for PngMeError {
             PngMeError::InvalidHeader => write!(f, "Header of PNG file is invalid!"),
             PngMeError::InvalidCliArguments => write!(f, "Invalid CLI arguments provided!"),
             PngMeError::IoError(e) => write!(f, "IO error caused by: {}", e),
+            PngMeError::FromUtf8ConversionError(e) => {
+                write!(f, "From UTF-8 conversion error: {}", e)
+            }
         }
     }
 }

@@ -35,6 +35,16 @@ fn encode(args: arg::EncodeArgs) -> Result<(), error::PngMeError> {
 }
 
 fn decode(args: arg::DecodeArgs) -> Result<(), error::PngMeError> {
+    let file_contents = fs::read(args.filename).map_err(|e| error::PngMeError::IoError(e))?;
+    let png_data = png::Png::try_from(file_contents.as_slice())?;
+    if let Some(chunk) = png_data.chunk_by_type(&args.chunk_type) {
+        let msg = chunk
+            .data_as_string()
+            .map_err(|e| error::PngMeError::FromUtf8ConversionError(e))?;
+        println!("Message in chunk type {} is:\n{}", &args.chunk_type, msg);
+    } else {
+        println!("Couldn't find chunk type {} in file", &args.chunk_type);
+    }
     Ok(())
 }
 
