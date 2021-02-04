@@ -18,17 +18,19 @@ pub fn execute(args: arg::PngMeCliArgs) -> Result<(), error::PngMeError> {
 }
 
 fn encode(args: arg::EncodeArgs) -> Result<(), error::PngMeError> {
-    let file_contents = fs::read(args.filename).map_err(|e| error::PngMeError::IoError(e))?;
+    let file_contents = fs::read(&args.filename).map_err(|e| error::PngMeError::IoError(e))?;
     let mut png_data = png::Png::try_from(file_contents.as_slice())?;
     let msg_data = args.msg.as_bytes().to_vec();
     png_data.append_chunk(chunk::Chunk::new(
         chunk_type::ChunkType::from_str(&args.chunk_type)?,
         msg_data,
     ));
-    if let Some(output_filename) = args.output_file {
-        fs::write(output_filename, png_data.as_bytes())
-            .map_err(|e| error::PngMeError::IoError(e))?;
-    }
+
+    let output = match args.output_file {
+        Some(output_file) => output_file,
+        None => args.filename,
+    };
+    fs::write(output, png_data.as_bytes()).map_err(|e| error::PngMeError::IoError(e))?;
     Ok(())
 }
 

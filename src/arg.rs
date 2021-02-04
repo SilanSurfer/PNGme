@@ -73,7 +73,8 @@ pub fn get_cli_args<'a>() -> ArgMatches<'a> {
                     Arg::with_name("message")
                         .help("Message to encode")
                         .default_value(""),
-                ),
+                )
+                .arg(Arg::with_name("output").help("Output file").required(false)),
         )
         .subcommand(
             SubCommand::with_name("decode")
