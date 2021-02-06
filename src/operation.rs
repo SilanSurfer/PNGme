@@ -69,5 +69,9 @@ fn remove(args: arg::RemoveArgs) -> Result<(), error::PngMeError> {
 }
 
 fn print(args: arg::PrintArgs) -> Result<(), error::PngMeError> {
+    println!("{}", args);
+    let file_contents = fs::read(&args.filename).map_err(|e| error::PngMeError::IoError(e))?;
+    let png_data = png::Png::try_from(file_contents.as_slice())?;
+    println!("{}", png_data);
     Ok(())
 }
