@@ -37,7 +37,7 @@ impl PngMeCliArgs {
                 filename: encode_args.value_of("filename").unwrap().to_string(),
                 chunk_type: encode_args.value_of("type").unwrap().to_string(),
                 msg: encode_args.value_of("message").unwrap().to_string(),
-                output_file: None,
+                output_file: encode_args.value_of("output").map(|val| val.to_string()),
             })),
             ("decode", Some(decode_args)) => Ok(PngMeCliArgs::Decode(DecodeArgs {
                 filename: decode_args.value_of("filename").unwrap().to_string(),
