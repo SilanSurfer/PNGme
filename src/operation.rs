@@ -7,7 +7,7 @@ use std::convert::TryFrom;
 use std::fs;
 use std::str::FromStr;
 
-pub fn execute(args: arg::PngMeCliArgs) -> Result<(), error::PngMeError> {
+pub fn run(args: arg::PngMeCliArgs) -> Result<(), error::PngMeError> {
     match args {
         arg::PngMeCliArgs::Encode(arg) => encode(arg)?,
         arg::PngMeCliArgs::Decode(arg) => decode(arg)?,
