@@ -51,6 +51,20 @@ fn decode(args: arg::DecodeArgs) -> Result<(), error::PngMeError> {
 }
 
 fn remove(args: arg::RemoveArgs) -> Result<(), error::PngMeError> {
+    println!("{}", args);
+    let file_contents = fs::read(&args.filename).map_err(|e| error::PngMeError::IoError(e))?;
+    let mut png_data = png::Png::try_from(file_contents.as_slice())?;
+    match png_data.remove_chunk(&args.chunk_type) {
+        Ok(_) => {
+            println!("Chunk {} has been removed!", &args.chunk_type);
+            fs::write(&args.filename, png_data.as_bytes())
+                .map_err(|e| error::PngMeError::IoError(e))?;
+        }
+        Err(e) => {
+            println!("Couldn't remove chunk {}", &args.chunk_type);
+            return Err(e);
+        }
+    }
     Ok(())
 }
 
