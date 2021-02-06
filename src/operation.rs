@@ -18,6 +18,7 @@ pub fn execute(args: arg::PngMeCliArgs) -> Result<(), error::PngMeError> {
 }
 
 fn encode(args: arg::EncodeArgs) -> Result<(), error::PngMeError> {
+    println!("{}", args);
     let file_contents = fs::read(&args.filename).map_err(|e| error::PngMeError::IoError(e))?;
     let mut png_data = png::Png::try_from(file_contents.as_slice())?;
     let msg_data = args.msg.as_bytes().to_vec();
@@ -35,6 +36,7 @@ fn encode(args: arg::EncodeArgs) -> Result<(), error::PngMeError> {
 }
 
 fn decode(args: arg::DecodeArgs) -> Result<(), error::PngMeError> {
+    println!("{}", args);
     let file_contents = fs::read(args.filename).map_err(|e| error::PngMeError::IoError(e))?;
     let png_data = png::Png::try_from(file_contents.as_slice())?;
     if let Some(chunk) = png_data.chunk_by_type(&args.chunk_type) {

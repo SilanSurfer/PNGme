@@ -30,6 +30,38 @@ pub struct PrintArgs {
     pub filename: String,
 }
 
+impl std::fmt::Display for EncodeArgs {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        write!(
+            f,
+            "Encode in {} type {} with message {}. Output filename: {:#?}",
+            self.filename, self.chunk_type, self.msg, self.output_file
+        )
+    }
+}
+
+impl std::fmt::Display for DecodeArgs {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        write!(f, "Decode {} for type {}.", self.filename, self.chunk_type)
+    }
+}
+
+impl std::fmt::Display for RemoveArgs {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        write!(
+            f,
+            "Remove from {} chunk type {}.",
+            self.filename, self.chunk_type
+        )
+    }
+}
+
+impl std::fmt::Display for PrintArgs {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        write!(f, "Printing file {}.", self.filename)
+    }
+}
+
 impl PngMeCliArgs {
     pub fn new(matches: ArgMatches) -> Result<PngMeCliArgs, PngMeError> {
         match matches.subcommand() {
