@@ -28,16 +28,9 @@ impl Chunk {
             crc: crc,
         }
     }
-    pub fn length(&self) -> u32 {
-        self.length
-    }
 
     pub fn chunk_type(&self) -> &ChunkType {
         &self.chunk_type
-    }
-
-    pub fn crc(&self) -> u32 {
-        self.crc
     }
 
     pub fn data_as_string(&self) -> Result<String, std::string::FromUtf8Error> {
@@ -45,14 +38,22 @@ impl Chunk {
     }
 
     pub fn as_bytes(&self) -> Vec<u8> {
-        self.length
+        self.length()
             .to_be_bytes()
             .iter()
-            .chain(self.chunk_type.bytes().iter())
+            .chain(self.chunk_type().bytes().iter())
             .chain(self.data.iter())
-            .chain(self.crc.to_be_bytes().iter())
+            .chain(self.crc().to_be_bytes().iter())
             .copied()
             .collect()
+    }
+
+    fn length(&self) -> u32 {
+        self.length
+    }
+
+    fn crc(&self) -> u32 {
+        self.crc
     }
 }
 
@@ -110,8 +111,6 @@ impl Display for Chunk {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::chunk_type::ChunkType;
-    use std::str::FromStr;
 
     fn testing_chunk() -> Chunk {
         let data_length: u32 = 42;
