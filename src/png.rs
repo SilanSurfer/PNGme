@@ -13,10 +13,6 @@ pub struct Png {
 impl Png {
     pub const STANDARD_HEADER: [u8; 8] = [137, 80, 78, 71, 13, 10, 26, 10];
 
-    pub fn from_chunks(chunks: Vec<Chunk>) -> Png {
-        Png { chunks }
-    }
-
     pub fn append_chunk(&mut self, chunk: Chunk) {
         self.chunks.push(chunk);
     }
@@ -24,7 +20,7 @@ impl Png {
     pub fn remove_chunk(&mut self, chunk_type: &str) -> Result<Chunk, PngMeError> {
         let chunk_type = ChunkType::from_str(chunk_type)?;
         let pos = self
-            .chunks
+            .chunks()
             .iter()
             .position(|elem| elem.chunk_type() == &chunk_type);
         if let Some(idx) = pos {
@@ -34,17 +30,9 @@ impl Png {
         }
     }
 
-    pub fn header(&self) -> &[u8; 8] {
-        &Png::STANDARD_HEADER
-    }
-
-    pub fn chunks(&self) -> &[Chunk] {
-        &self.chunks
-    }
-
     pub fn chunk_by_type(&self, chunk_type: &str) -> Option<&Chunk> {
         if let Ok(chunk_type) = ChunkType::from_str(chunk_type) {
-            self.chunks
+            self.chunks()
                 .iter()
                 .find(|elem| elem.chunk_type() == &chunk_type)
         } else {
@@ -53,11 +41,23 @@ impl Png {
     }
     pub fn as_bytes(&self) -> Vec<u8> {
         let mut output = Vec::new();
-        output.extend_from_slice(&Self::STANDARD_HEADER);
-        for elem in &self.chunks {
+        output.extend_from_slice(self.header());
+        for elem in self.chunks() {
             output.append(&mut elem.as_bytes().clone());
         }
         output
+    }
+
+    fn from_chunks(chunks: Vec<Chunk>) -> Png {
+        Png { chunks }
+    }
+
+    fn header(&self) -> &[u8; 8] {
+        &Png::STANDARD_HEADER
+    }
+
+    fn chunks(&self) -> &[Chunk] {
+        &self.chunks
     }
 }
 
@@ -85,7 +85,7 @@ impl TryFrom<&[u8]> for Png {
                     break;
                 }
             }
-            Ok(Png { chunks })
+            Ok(Png::from_chunks(chunks))
         }
     }
 }
@@ -111,7 +111,6 @@ mod tests {
     use crate::chunk::Chunk;
     use crate::chunk_type::ChunkType;
     use std::convert::TryFrom;
-    use std::str::FromStr;
 
     fn testing_chunks() -> Vec<Chunk> {
         let mut chunks = Vec::new();
@@ -129,8 +128,6 @@ mod tests {
     }
 
     fn chunk_from_strings(chunk_type: &str, data: &str) -> Result<Chunk, PngMeError> {
-        use std::str::FromStr;
-
         let chunk_type = ChunkType::from_str(chunk_type)?;
         let data: Vec<u8> = data.bytes().collect();
 
