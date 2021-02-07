@@ -14,19 +14,19 @@ impl ChunkType {
         &self.data_type
     }
 
-    pub fn is_critical(&self) -> bool {
+    fn is_critical(&self) -> bool {
         (self.data_type[0] as char).is_uppercase()
     }
 
-    pub fn is_public(&self) -> bool {
+    fn is_public(&self) -> bool {
         (self.data_type[1] as char).is_uppercase()
     }
 
-    pub fn is_safe_to_copy(&self) -> bool {
+    fn is_safe_to_copy(&self) -> bool {
         (self.data_type[3] as char).is_lowercase()
     }
 
-    pub fn is_valid(&self) -> bool {
+    fn is_valid(&self) -> bool {
         self.data_type
             .iter()
             .all(|elem| (*elem as char).is_ascii_alphabetic())
@@ -42,13 +42,11 @@ impl TryFrom<[u8; 4]> for ChunkType {
     type Error = PngMeError;
 
     fn try_from(value: [u8; 4]) -> Result<Self, Self::Error> {
-        if value
-            .iter()
-            .all(|elem| (*elem as char).is_ascii_alphabetic())
-        {
-            Ok(ChunkType {
-                data_type: [value[0], value[1], value[2], value[3]],
-            })
+        let chunk_type = 
+            ChunkType { data_type: [value[0], value[1], value[2], value[3]] };
+        
+        if chunk_type.is_valid() {
+            Ok(chunk_type)
         } else {
             Err(PngMeError::NotAsciiAlphabetic)
         }
