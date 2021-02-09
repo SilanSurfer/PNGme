@@ -93,7 +93,7 @@ impl TryFrom<&[u8]> for Chunk {
                 Err(PngMeError::CrcError)
             }
         } else {
-            Err(PngMeError::NotEnoughBytesToCreateChunk)
+            Err(PngMeError::NotEnoughBytesToCreateChunk(data_len))
         }
     }
 }

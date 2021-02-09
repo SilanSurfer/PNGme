@@ -26,7 +26,7 @@ impl Png {
         if let Some(idx) = pos {
             Ok(self.chunks.remove(idx))
         } else {
-            Err(PngMeError::ChunkTypeNotFound)
+            Err(PngMeError::ChunkTypeNotFound(chunk_type.to_string()))
         }
     }
 

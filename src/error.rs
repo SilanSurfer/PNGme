@@ -1,43 +1,25 @@
-use std::fmt::{Display, Formatter, Result};
+use thiserror::Error;
 
-#[derive(Debug)]
+#[derive(Error, Debug)]
 pub enum PngMeError {
+    #[error("Couldn't create chunk type from data")]
     NotAsciiAlphabetic,
-    ReservedBitInvalid,
-    InvalidNumberOfBytes,
-    Utf8ConversionError,
+    #[error("Not enough bytes ({0}) to create chunk type")]
+    InvalidNumberOfBytes(usize),
+    #[error("Coulnd't convert &[u8] to [u8]")]
     U8SliceConversionError,
-    NotEnoughBytesToCreateChunk,
+    #[error("Not enough bytes ({0}) in slice to create chunk. At least 12 is needed.")]
+    NotEnoughBytesToCreateChunk(usize),
+    #[error("Calculated CRC different than expected")]
     CrcError,
-    ChunkTypeNotFound,
+    #[error("Chunk type {0} not found in file")]
+    ChunkTypeNotFound(String),
+    #[error("Invalid standard header in png file")]
     InvalidHeader,
+    #[error("Not supported CLI arguments provided")]
     InvalidCliArguments,
-    IoError(std::io::Error),
-    FromUtf8ConversionError(std::string::FromUtf8Error),
-}
-
-impl Display for PngMeError {
-    fn fmt(&self, f: &mut Formatter) -> Result {
-        match self {
-            PngMeError::NotAsciiAlphabetic => {
-                write!(f, "Character for ChunkType should be in range A-Z or a-z")
-            }
-            PngMeError::ReservedBitInvalid => write!(f, "Reserved bit in ChunkType must be 0"),
-            PngMeError::InvalidNumberOfBytes => write!(f, "ChunkType must have 4 bytes"),
-            PngMeError::Utf8ConversionError => write!(f, "Couldn't convert bytes to UTF8"),
-            PngMeError::U8SliceConversionError => write!(f, "Couldn't convert &[u8] to [u8]"),
-            PngMeError::NotEnoughBytesToCreateChunk => write!(
-                f,
-                "Not enough bytes to create Chunk. Data should have at least 12 bytes."
-            ),
-            PngMeError::CrcError => write!(f, "Calculated CRC is different than expected!"),
-            PngMeError::ChunkTypeNotFound => write!(f, "Chunk with that type not found!"),
-            PngMeError::InvalidHeader => write!(f, "Header of PNG file is invalid!"),
-            PngMeError::InvalidCliArguments => write!(f, "Invalid CLI arguments provided!"),
-            PngMeError::IoError(e) => write!(f, "IO error caused by: {}", e),
-            PngMeError::FromUtf8ConversionError(e) => {
-                write!(f, "From UTF-8 conversion error: {}", e)
-            }
-        }
-    }
+    #[error("Error while opening file")]
+    IoError(#[from] std::io::Error),
+    #[error("Couldn't convert from UTF-8 to String")]
+    FromUtf8ConversionError(#[from] std::string::FromUtf8Error),
 }

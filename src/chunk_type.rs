@@ -42,9 +42,10 @@ impl TryFrom<[u8; 4]> for ChunkType {
     type Error = PngMeError;
 
     fn try_from(value: [u8; 4]) -> Result<Self, Self::Error> {
-        let chunk_type = 
-            ChunkType { data_type: [value[0], value[1], value[2], value[3]] };
-        
+        let chunk_type = ChunkType {
+            data_type: [value[0], value[1], value[2], value[3]],
+        };
+
         if chunk_type.is_valid() {
             Ok(chunk_type)
         } else {
@@ -57,7 +58,7 @@ impl FromStr for ChunkType {
     type Err = PngMeError;
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         if s.len() != 4 {
-            return Err(PngMeError::InvalidNumberOfBytes);
+            return Err(PngMeError::InvalidNumberOfBytes(s.len()));
         }
         if s.chars().all(|elem| elem.is_ascii_alphabetic()) {
             let data = s.as_bytes();
