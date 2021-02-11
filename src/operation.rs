@@ -19,7 +19,7 @@ pub fn run(args: arg::PngMeCliArgs) -> Result<(), error::PngMeError> {
 
 fn encode(args: arg::EncodeArgs) -> Result<(), error::PngMeError> {
     println!("{}", args);
-    let file_contents = fs::read(&args.filename).map_err(|e| error::PngMeError::IoError(e))?;
+    let file_contents = fs::read(&args.filename)?;
     let mut png_data = png::Png::try_from(file_contents.as_slice())?;
     let msg_data = args.msg.as_bytes().to_vec();
     png_data.append_chunk(chunk::Chunk::new(
@@ -31,18 +31,17 @@ fn encode(args: arg::EncodeArgs) -> Result<(), error::PngMeError> {
         Some(output_file) => output_file,
         None => args.filename,
     };
-    fs::write(output, png_data.as_bytes()).map_err(|e| error::PngMeError::IoError(e))?;
+    fs::write(output, png_data.as_bytes())?;
     Ok(())
 }
 
 fn decode(args: arg::DecodeArgs) -> Result<(), error::PngMeError> {
     println!("{}", args);
-    let file_contents = fs::read(args.filename).map_err(|e| error::PngMeError::IoError(e))?;
+    let file_contents = fs::read(args.filename)?;
     let png_data = png::Png::try_from(file_contents.as_slice())?;
     if let Some(chunk) = png_data.chunk_by_type(&args.chunk_type) {
         let msg = chunk
-            .data_as_string()
-            .map_err(|e| error::PngMeError::FromUtf8ConversionError(e))?;
+            .data_as_string()?;
         println!("Message in chunk type {} is:\n{}", &args.chunk_type, msg);
     } else {
         println!("Couldn't find chunk type {} in file", &args.chunk_type);
@@ -52,13 +51,12 @@ fn decode(args: arg::DecodeArgs) -> Result<(), error::PngMeError> {
 
 fn remove(args: arg::RemoveArgs) -> Result<(), error::PngMeError> {
     println!("{}", args);
-    let file_contents = fs::read(&args.filename).map_err(|e| error::PngMeError::IoError(e))?;
+    let file_contents = fs::read(&args.filename)?;
     let mut png_data = png::Png::try_from(file_contents.as_slice())?;
     match png_data.remove_chunk(&args.chunk_type) {
         Ok(_) => {
             println!("Chunk {} has been removed!", &args.chunk_type);
-            fs::write(&args.filename, png_data.as_bytes())
-                .map_err(|e| error::PngMeError::IoError(e))?;
+            fs::write(&args.filename, png_data.as_bytes())?;
         }
         Err(e) => {
             println!("Couldn't remove chunk {}", &args.chunk_type);
@@ -70,7 +68,7 @@ fn remove(args: arg::RemoveArgs) -> Result<(), error::PngMeError> {
 
 fn print(args: arg::PrintArgs) -> Result<(), error::PngMeError> {
     println!("{}", args);
-    let file_contents = fs::read(&args.filename).map_err(|e| error::PngMeError::IoError(e))?;
+    let file_contents = fs::read(&args.filename)?;
     let png_data = png::Png::try_from(file_contents.as_slice())?;
     println!("{}", png_data);
     Ok(())
