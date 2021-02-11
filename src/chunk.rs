@@ -23,9 +23,9 @@ impl Chunk {
         let crc = crc::crc32::checksum_ieee(&crc_input);
         Chunk {
             length: data.len() as u32,
-            chunk_type: chunk_type,
-            data: data,
-            crc: crc,
+            chunk_type,
+            data,
+            crc,
         }
     }
 

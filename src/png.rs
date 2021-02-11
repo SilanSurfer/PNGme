@@ -66,7 +66,7 @@ impl TryFrom<&[u8]> for Png {
 
     fn try_from(bytes: &[u8]) -> Result<Self, Self::Error> {
         let header = &bytes[0..8];
-        if header != &Png::STANDARD_HEADER {
+        if header != Self::STANDARD_HEADER {
             Err(Self::Error::InvalidHeader)
         } else {
             let mut idx: usize = 8;
@@ -85,7 +85,7 @@ impl TryFrom<&[u8]> for Png {
                     break;
                 }
             }
-            Ok(Png::from_chunks(chunks))
+            Ok(Self::from_chunks(chunks))
         }
     }
 }

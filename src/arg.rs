@@ -88,7 +88,7 @@ impl PngMeCliArgs {
 }
 
 pub fn get_cli_args<'a>() -> ArgMatches<'a> {
-    let matches = App::new("PNGme")
+    App::new("PNGme")
         .version("0.1.0")
         .author("SilanSurfer <szwarc.adam@gmail.com>")
         .about("Let's you modify PNG file to include secret message")
@@ -135,6 +135,5 @@ pub fn get_cli_args<'a>() -> ArgMatches<'a> {
                     .required(true),
             ),
         )
-        .get_matches();
-    return matches;
+        .get_matches()
 }
