@@ -14,18 +14,6 @@ impl ChunkType {
         &self.data_type
     }
 
-    fn is_critical(&self) -> bool {
-        (self.data_type[0] as char).is_uppercase()
-    }
-
-    fn is_public(&self) -> bool {
-        (self.data_type[1] as char).is_uppercase()
-    }
-
-    fn is_safe_to_copy(&self) -> bool {
-        (self.data_type[3] as char).is_lowercase()
-    }
-
     fn is_valid(&self) -> bool {
         self.data_type
             .iter()
@@ -102,30 +90,6 @@ mod tests {
     }
 
     #[test]
-    pub fn test_chunk_type_is_critical() {
-        let chunk = ChunkType::from_str("RuSt").unwrap();
-        assert!(chunk.is_critical());
-    }
-
-    #[test]
-    pub fn test_chunk_type_is_not_critical() {
-        let chunk = ChunkType::from_str("ruSt").unwrap();
-        assert!(!chunk.is_critical());
-    }
-
-    #[test]
-    pub fn test_chunk_type_is_public() {
-        let chunk = ChunkType::from_str("RUSt").unwrap();
-        assert!(chunk.is_public());
-    }
-
-    #[test]
-    pub fn test_chunk_type_is_not_public() {
-        let chunk = ChunkType::from_str("RuSt").unwrap();
-        assert!(!chunk.is_public());
-    }
-
-    #[test]
     pub fn test_chunk_type_is_reserved_bit_valid() {
         let chunk = ChunkType::from_str("RuSt").unwrap();
         assert!(chunk.is_reserved_bit_valid());
@@ -135,18 +99,6 @@ mod tests {
     pub fn test_chunk_type_is_reserved_bit_invalid() {
         let chunk = ChunkType::from_str("Rust").unwrap();
         assert!(!chunk.is_reserved_bit_valid());
-    }
-
-    #[test]
-    pub fn test_chunk_type_is_safe_to_copy() {
-        let chunk = ChunkType::from_str("RuSt").unwrap();
-        assert!(chunk.is_safe_to_copy());
-    }
-
-    #[test]
-    pub fn test_chunk_type_is_unsafe_to_copy() {
-        let chunk = ChunkType::from_str("RuST").unwrap();
-        assert!(!chunk.is_safe_to_copy());
     }
 
     #[test]
